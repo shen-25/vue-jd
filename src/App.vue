@@ -1,13 +1,8 @@
 <template>
-  <HomeView />
+  <!-- 根据路径不同展示不同的页面 -->
+  <router-view />
 </template>
 
 <script>
-import HomeView from "./views/home/HomeView.vue";
-import axios from "axios";
-export default {
-  components: {
-    HomeView,
-  },
-};
+export default {};
 </script>
