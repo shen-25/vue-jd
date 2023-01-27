@@ -1,62 +1,60 @@
 <template>
   <div class="nearby">
     <div class="nearby__store">附近店铺</div>
-    <div class="nearby__item" v-for="item in nearbyList" :key="item.id">
-      <img class="nearby__item__img" :src="item.imgUrl" />
-      <div class="nearby__item__content">
-        <div class="nearby__item__content__title">{{ item.title }}</div>
-        <div class="nearby__item__content__tags">
-          <div
-            class="nearby__item__content__tags__item"
-            v-for="innerItem in item.tags"
-            :key="innerItem"
-          >
-            {{ innerItem }}
-          </div>
-        </div>
-        <div class="nearby__item__content__desc">
-          {{ item.desc }}
-        </div>
-      </div>
-    </div>
+    <ShopInfo
+      v-for="item in nearbyList"
+      :key="item._id"
+      :item="item"
+      @click="hanldeToShop(item._id)"
+    />
+    <!-- <router-link
+      v-for="item in nearbyList"
+      :key="item._id"
+      :to="`/shop/${item._id}`"
+    >
+      <ShopInfo :item="item" />
+    </router-link> -->
   </div>
 </template>
 
 <script>
+import { effectScope, ref } from "vue";
+import { get } from "../../utils/request";
+import ShopInfo from "../../components/ShopInfo";
+import { useRouter } from "vue-router";
+const useNearbyListEffect = () => {
+  const nearbyList = ref([]);
+
+  const getNearbyList = async () => {
+    if (localStorage.nearbyList != null) {
+      nearbyList.value = JSON.parse(localStorage.nearbyList);
+      return;
+    }
+    try {
+      const result = await get("/api/shop/hot-list");
+      if (result.errno === 0) {
+        nearbyList.value = result.data;
+        localStorage.nearbyList = JSON.stringify(result.data);
+      }
+    } catch (e) {
+      console.log("获取失败");
+    }
+  };
+  return { nearbyList, getNearbyList };
+};
 export default {
   name: "Nearby",
+  components: {
+    ShopInfo,
+  },
   setup() {
-    const nearbyList = [
-      {
-        id: "1",
-        title: "沃尔玛",
-        imgUrl: "http://www.dell-lee.com/imgs/vue3/near.png",
-        tags: ["月售一万+", "月售二万+", "月售三万+"],
-        desc: "vip大数据量咖啡打算看了(每月2张)",
-      },
-      {
-        id: "2",
-        title: "沃尔玛",
-        imgUrl: "http://www.dell-lee.com/imgs/vue3/near.png",
-        tags: ["月售一万+", "月售二万+", "月售三万+"],
-        desc: "vip大数据量咖啡打算看了(每月2张)",
-      },
-      {
-        id: "3",
-        title: "沃尔玛",
-        imgUrl: "http://www.dell-lee.com/imgs/vue3/near.png",
-        tags: ["月售一万+", "月售二万+", "月售三万+"],
-        desc: "vip大数据量咖啡打算看了(每月2张)",
-      },
-      {
-        id: "4",
-        title: "沃尔玛",
-        imgUrl: "http://www.dell-lee.com/imgs/vue3/near.png",
-        tags: ["月售一万+", "月售二万+", "月售三万+"],
-        desc: "vip大数据量咖啡打算看了(每月2张)",
-      },
-    ];
-    return { nearbyList };
+    const router = useRouter();
+    const { nearbyList, getNearbyList } = useNearbyListEffect();
+    getNearbyList();
+    const hanldeToShop = (id) => {
+      router.push({ path: "shop/" + id });
+    };
+    return { nearbyList, hanldeToShop };
   },
 };
 </script>
@@ -70,44 +68,9 @@ export default {
     font-size: 0.18rem;
     color: $content-font-color;
   }
-
-  &__item {
-    display: flex;
-    padding-top: 0.12rem;
-    &__img {
-      margin-right: 0.16rem;
-      width: 0.5rem;
-      height: 0.5rem;
-    }
-    &__content {
-      flex: 1;
-      padding-bottom: 0.11rem;
-      border-bottom: 1.3px solid $content-bg-color;
-      &__title {
-        font-size: 0.16rem;
-        color: $content-font-color;
-
-        line-height: 0.22rem;
-      }
-      &__tags {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        flex-wrap: nowrap;
-        font-size: 0.13rem;
-        height: 0.2rem;
-        margin-right: 0.35rem;
-        &__item {
-          width: 33%;
-          padding: 0.08rem 0 0.04rem 0;
-        }
-      }
-      &__desc {
-        font-size: 0.13rem;
-        margin-top: 0.08rem;
-        color: #e93b3b;
-      }
-    }
-  }
+}
+a {
+  text-decoration: none;
+  color: $content-font-color;
 }
 </style>

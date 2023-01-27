@@ -1,17 +1,16 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import HomeView from "../views/home/HomeView";
-import Login from "../views/login/Login";
-import Register from "../views/register/Register";
 const routes = [
   {
     path: "/",
     name: "Home",
-    component: HomeView,
+    component: () =>
+      import(/* webpackChunkName: "HomeView"*/ "../views/home/HomeView"),
   },
   {
     path: "/login",
     name: "Login",
-    component: Login,
+    component: () =>
+      import(/* webpackChunkName: "Login"*/ "../views/login/Login"),
     // 路由守卫
     beforeEnter: (to, from, next) => {
       const { isLogin } = localStorage;
@@ -25,17 +24,15 @@ const routes = [
   {
     path: "/register",
     name: "Register",
-    component: Register,
+    component: () =>
+      import(/* webpackChunkName: 'Register' */ "../views/register/Register"),
   },
-
-  // {
-  //   path: '/about',
-  //   name: 'about',
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  // }
+  {
+    path: "/shop/:id",
+    name: "Shop",
+    component: () =>
+      import(/* webpackChunkName: 'Shop' */ "../views/shop/Shop"),
+  },
 ];
 
 const router = createRouter({
@@ -51,7 +48,6 @@ router.beforeEach((to, from, next) => {
   } else {
     next({ name: "Login" });
   }
-  next();
 });
 
 export default router;
