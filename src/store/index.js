@@ -1,8 +1,21 @@
 import { createStore } from "vuex";
 
+const setLocalStorage = (state) => {
+  const { cartList } = state;
+  const cartListStr = JSON.stringify(cartList);
+  localStorage.cartList = cartListStr;
+};
+
+const getLocalStorageCartList = () => {
+  if (localStorage.cartList) {
+    return JSON.parse(localStorage.cartList);
+  } else {
+    return {};
+  }
+};
 export default createStore({
   state: {
-    cartList: {},
+    cartList: getLocalStorageCartList(),
 
     /**
      * {
@@ -46,24 +59,39 @@ export default createStore({
       }
       shopInfo.productList[productId] = product;
       state.cartList[shopId] = shopInfo;
-      console.log(state.cartList);
+      setLocalStorage(state);
     },
     changeCartItemChecked(state, payload) {
       const { shopId, productId } = payload;
       const productItem = state.cartList[shopId].productList[productId];
       productItem.check = !productItem.check;
+      setLocalStorage(state);
     },
 
     handleCartClear(state, payload) {
       const { shopId } = payload;
       state.cartList[shopId].productList = {};
+      setLocalStorage(state);
     },
 
     changeShopName(state, payload) {
       const { shopId, shopName } = payload;
-      const shopInfo = state.cartList[shopId];
+      let shopInfo = state.cartList[shopId] || {
+        shopName: "",
+        productList: {},
+      };
       shopInfo.shopName = shopName;
       state.cartList[shopId] = shopInfo;
+      setLocalStorage(state);
+    },
+
+    clearCartData(state, payload) {
+      const { shopId } = payload;
+      // console.log(shopId);
+      state.cartList[shopId].productList = {};
+      state.cartList[shopId].shopName = "";
+
+      setLocalStorage(state);
     },
   },
   actions: {},

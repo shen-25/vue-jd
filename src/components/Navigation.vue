@@ -3,11 +3,13 @@
     <div
       v-for="(item, index) in dockerList"
       class="docker__item"
-      :class="{ 'docker__item--active': index === 0 }"
+      :class="{ 'docker__item--active': index == currentIndex }"
       :key="item.icon"
     >
-      <div class="iconfont" v-html="item.icon"></div>
-      <div class="docker__title">{{ item.text }}</div>
+      <router-link :to="item.to">
+        <div class="iconfont" v-html="item.icon"></div>
+        <div class="docker__title">{{ item.text }}</div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -15,12 +17,13 @@
 <script>
 export default {
   name: "Navigation",
+  props: ["currentIndex"],
   setup() {
     const dockerList = [
-      { icon: "&#xe64d;", text: "首页" },
-      { icon: "&#xe7e5;", text: "购物车" },
-      { icon: "&#xe605;", text: "订单" },
-      { icon: "&#xe78b;", text: "我的" },
+      { icon: "&#xe6b8;", text: "首页", to: { name: "Home" } },
+      { icon: "&#xe67f;", text: "购物车", to: { name: "CartList" } },
+      { icon: "&#xe613;", text: "订单", to: { name: "OrderList" } },
+      { icon: "&#xe78b;", text: "我的", to: { name: "My" } },
     ];
     return { dockerList };
   },
@@ -28,8 +31,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../style/viriables.scss";
+@import "../style/viriables.scss";
 
+a {
+  text-decoration: none;
+  color: $content-font-color;
+}
 .docker {
   display: flex;
   // align-items: center;
@@ -43,7 +50,7 @@ export default {
   height: 0.58rem;
   box-sizing: border-box;
   padding: 0 0.08rem 0.08rem 0.08rem;
-  border-top: 1px solid $content-bg-color;
+  border-top: 0.01rem solid $content-bg-color;
   color: $content-font-color;
   background-color: #fff;
   &__item {
@@ -54,8 +61,10 @@ export default {
       margin: 0.07rem 0 0.04rem 0;
       font-size: 0.24rem;
     }
-    .docker &--active {
-      color: #1fa4fc;
+    &--active {
+      a {
+        color: #1fa4fc;
+      }
     }
   }
   &__title {

@@ -1,7 +1,7 @@
 <template>
   <div class="mask" v-show="showCart" />
   <div class="cart">
-    <div class="product" v-show="showCart">
+    <div class="product" v-show="showCart && calculations.total > 0">
       <div class="product__header">
         <div class="product__header__all">
           <span
@@ -21,42 +21,49 @@
           >
         </div>
       </div>
-      <template v-for="item in productList" :key="item._id">
-        <div class="product__item" v-if="item.count > 0">
-          <div
-            class="product__item__checked iconfont"
-            :class="item.check ? 'icon-checked-color' : 'icon-no-check-color'"
-            v-html="
-              item.check ? checkIconCode.checkIcon : checkIconCode.uncheckIcon
-            "
-            @click="changeCartItemChecked(shopId, item._id)"
-          ></div>
-          <img class="product__item__img" :src="item.imgUrl" />
-          <div class="product__item__detail">
-            <h4 class="product__item__title">{{ item.name }}</h4>
-            <p class="product__item__price">
-              <span class="product__item__yen">&yen;{{ item.price }}</span>
-              <span class="product__item__origin"
-                >&yen;{{ item.oldPrice }}</span
+      <div class="product_container">
+        <template v-for="item in productList" :key="item._id">
+          <!-- v-if="item.count > 0"有个判断加个template -->
+          <div class="product__item">
+            <div
+              class="product__item__checked iconfont"
+              :class="item.check ? 'icon-checked-color' : 'icon-no-check-color'"
+              v-html="
+                item.check ? checkIconCode.checkIcon : checkIconCode.uncheckIcon
+              "
+              @click="changeCartItemChecked(shopId, item._id)"
+            ></div>
+            <img class="product__item__img" :src="item.imgUrl" />
+            <div class="product__item__detail">
+              <h4 class="product__item__title">{{ item.name }}</h4>
+              <p class="product__item__price">
+                <span class="product__item__yen">&yen;{{ item.price }}</span>
+                <span class="product__item__origin"
+                  >&yen;{{ item.oldPrice }}</span
+                >
+              </p>
+            </div>
+            <div class="product__number">
+              <span
+                class="product__number__minus iconfont"
+                @click="changeCartItemInfo(shopId, item._id, item, -1)"
+                >&#xe8e6;</span
               >
-            </p>
+              {{ item.count }}
+              <span
+                class="product__number__plus iconfont"
+                @click="changeCartItemInfo(shopId, item._id, item, 1)"
+                >&#xe601;</span
+              >
+            </div>
           </div>
-          <div class="product__number">
-            <span
-              class="product__number__minus iconfont"
-              @click="changeCartItemInfo(shopId, item._id, item, -1)"
-              >&#xe8e6;</span
-            >
-            {{ item.count }}
-            <span
-              class="product__number__plus iconfont"
-              @click="changeCartItemInfo(shopId, item._id, item, 1)"
-              >&#xe601;</span
-            >
-          </div>
-        </div>
-      </template>
+        </template>
+      </div>
+      <div class="show-cart-tips" v-show="showCart && calculations.total <= 0">
+        购物车空空如也~
+      </div>
     </div>
+
     <div class="check">
       <div class="check__icon">
         <img
@@ -65,63 +72,38 @@
           @click="handleCartShowChange"
         />
 
-        <div class="check__icon__tag">{{ total }}</div>
+        <div class="check__icon__tag">{{ calculations.total }}</div>
       </div>
       <div class="check__info">
         总计：
-        <span class="check__info__price">&yen; {{ totalPrice }}</span>
+        <span class="check__info__price"
+          >&yen; {{ calculations.totalPrice }}</span
+        >
       </div>
       <div class="check__btn">
-        <router-link :to="{ name: 'Home' }">去结算</router-link>
+        <router-link :to="{ path: `/orderConfirmation/${shopId}` }"
+          >去结算</router-link
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import { useStore } from "vuex";
 import { computed, ref } from "vue";
-import { useCommonCartEffect } from "./commonCartEffect";
+import { useCommonCartEffect } from "../../effects/cartEffect";
 
 const checkIconCode = {
   uncheckIcon: "&#xe731;",
   checkIcon: "&#xe66e;",
 };
+
 const useCartEffect = (shopId) => {
   const store = useStore();
-  const cartList = store.state.cartList;
-
-  const { changeCartItemInfo } = useCommonCartEffect();
-
-  const total = computed(() => {
-    const productList = cartList[shopId]?.productList;
-    let count = 0;
-    if (productList == null) {
-      return count;
-    }
-    for (let i in productList) {
-      const product = productList[i];
-      count += product.count;
-    }
-    return count;
-  });
-  const totalPrice = computed(() => {
-    const productList = cartList[shopId]?.productList;
-    let price = 0;
-    for (let i in productList) {
-      const product = productList[i];
-      if (product.check) {
-        price += product.count * product.price;
-      }
-    }
-    return price.toFixed(2);
-  });
-
-  const productList = computed(() => {
-    const productListTemp = cartList[shopId]?.productList || [];
-    return productListTemp;
-  });
+  const { changeCartItemInfo, cartList, productList, calculations } =
+    useCommonCartEffect(shopId);
 
   const allChecked = computed(() => {
     const productList = cartList[shopId]?.productList;
@@ -157,8 +139,7 @@ const useCartEffect = (shopId) => {
   };
 
   return {
-    total,
-    totalPrice,
+    calculations,
     productList,
     allChecked,
     changeCartItemInfo,
@@ -181,8 +162,7 @@ export default {
     const route = useRoute();
     const shopId = route.params.id;
     const {
-      total,
-      totalPrice,
+      calculations,
       productList,
       changeCartItemInfo,
       changeCartItemChecked,
@@ -193,8 +173,7 @@ export default {
     const { showCart, handleCartShowChange } = toggleCartEffect();
 
     return {
-      total,
-      totalPrice,
+      calculations,
       productList,
       shopId,
       changeCartItemChecked,
@@ -237,13 +216,23 @@ export default {
   background: $bgColor;
 }
 .product {
-  overflow-y: scroll;
   position: relative;
   flex: 1;
   background: $bgColor;
-  height: 2.4rem;
+  &_container {
+    overflow-y: scroll;
+    padding-top: 0.4rem;
+    height: 2rem;
+  }
   &__header {
     display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    z-index: 11;
+    height: 0.44rem;
     line-height: 0.44rem;
     border-bottom: 0.01rem solid $content-bgColor;
     font-size: 0.14rem;

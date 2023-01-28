@@ -46,7 +46,7 @@ import { reactive, toRefs, ref, watchEffect } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 
-import { useCommonCartEffect } from "./commonCartEffect";
+import { useCommonCartEffect } from "../../effects/cartEffect";
 import { get } from "../../utils/request.js";
 const categories = [
   { name: "全部商品", tab: "all" },
@@ -78,9 +78,9 @@ const useCurrentListEffect = (currentTab, shopId) => {
   return { list };
 };
 
-const useCartEffect = () => {
+const useCartEffect = (shopId) => {
   const store = useStore();
-  const { changeCartItemInfo, cartList } = useCommonCartEffect();
+  const { changeCartItemInfo, cartList } = useCommonCartEffect(shopId);
 
   const changeShopName = (shopId, shopName) => {
     store.commit("changeShopName", { shopId, shopName });
@@ -89,7 +89,12 @@ const useCartEffect = () => {
     changeCartItemInfo(shopId, productId, item, num);
     changeShopName(shopId, shopName);
   };
-  return { cartList, changeCartItem };
+
+  const getProductCartCount = (shopId, productId) => {
+    return cartList?.[shopId]?.productList?.[productId]?.count || 0;
+  };
+
+  return { cartList, changeCartItem, getProductCartCount };
 };
 
 export default {
@@ -99,9 +104,11 @@ export default {
     const route = useRoute();
 
     const shopId = route.params.id;
+
     const { currentTab, handleTabClick } = userTabEffect();
     const { list } = useCurrentListEffect(currentTab, shopId);
-    const { cartList, changeCartItem } = useCartEffect();
+    const { cartList, changeCartItem, getProductCartCount } =
+      useCartEffect(shopId);
     return {
       list,
       currentTab,
@@ -109,6 +116,7 @@ export default {
       cartList,
       shopId,
       handleTabClick,
+      getProductCartCount,
       changeCartItem,
     };
   },

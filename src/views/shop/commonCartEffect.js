@@ -1,6 +1,6 @@
 import { useStore } from "vuex";
-import { toRefs } from "vue";
-const useCommonCartEffect = () => {
+import { computed, toRefs } from "vue";
+const useCommonCartEffect = (shopId) => {
   const store = useStore();
   const { cartList } = toRefs(store.state);
   const changeCartItemInfo = (shopId, productId, productInfo, num) => {
@@ -11,6 +11,7 @@ const useCommonCartEffect = () => {
       num,
     });
   };
+
   return { changeCartItemInfo, cartList };
 };
 

@@ -42,7 +42,7 @@ export default {
     flex: 1;
     padding-bottom: 0.11rem;
     &--bordered {
-      border-bottom: 1.3px solid $content-bg-color;
+      border-bottom: 0.013rem solid $content-bg-color;
     }
 
     &__title {

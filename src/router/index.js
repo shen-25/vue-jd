@@ -33,6 +33,34 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: 'Shop' */ "../views/shop/Shop"),
   },
+  {
+    path: "/cartList",
+    name: "CartList",
+    component: () =>
+      import(/* webpackChunkName: 'CartList' */ "../views/cartlist/CartList"),
+  },
+  {
+    path: "/orderConfirmation/:id",
+    name: "OrderConfirmation",
+    component: () =>
+      import(
+        /* webpackChunkName: 'OrderConfirmation' */ "../views/orderconfirmation/OrderConfirmation"
+      ),
+  },
+  {
+    path: "/orderList",
+    name: "OrderList",
+    component: () =>
+      import(
+        /* webpackChunkName: 'OrderList' */ "../views/orderlist/OrderList"
+      ),
+  },
+  {
+    path: "/my",
+    name: "My",
+    component: () =>
+      import(/* webpackChunkName: 'MyView' */ "../views/my/MyView"),
+  },
 ];
 
 const router = createRouter({

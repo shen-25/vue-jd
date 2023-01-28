@@ -3,16 +3,17 @@
     <StaticPart />
     <NearBy />
   </div>
-  <Navigation />
+  <Navigation :currentIndex="0" />
 </template>
 
 <script>
 import StaticPart from "./StaticPart";
 import NearBy from "./Nearby.vue";
-import Navigation from "./Navigation.vue";
+import Navigation from "../../components/Navigation.vue";
 export default {
   name: "HomeView",
   components: { StaticPart, NearBy, Navigation },
+  setup() {},
 };
 </script>
 <style lang="scss" scoped>
