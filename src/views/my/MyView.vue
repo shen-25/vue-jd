@@ -12,4 +12,10 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.container {
+  margin-top: 0.8rem;
+  text-align: center;
+  font-size: 0.18rem;
+}
+</style>
